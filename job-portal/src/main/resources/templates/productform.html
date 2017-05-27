@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+
+<title>Trading Platform</title>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<link rel="stylesheet"
+	href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"></link>
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"></link>
+
+<script>
+	$(function() {
+		$("#datepicker").datepicker();
+	});
+</script>
+<style>
+input[type=text], input[type=password] {
+	width: 100%;
+	padding: 12px 20px;
+	margin: 8px 0;
+	display: inline-block;
+	border: 1px solid #ccc;
+	box-sizing: border-box;
+}
+
+.modal-header .close {
+	margin-top: -5px;
+	float: right;
+	margin-right: -50%;
+}
+
+/* Set a style for all buttons */
+button {
+	background-color: #4CAF50;
+	color: white;
+	padding: 14px 20px;
+	margin: 8px 0;
+	border: none;
+	cursor: pointer;
+	width: 100%;
+}
+
+/* Extra styles for the cancel button */
+.cancelbtn {
+	padding: 14px 20px;
+	background-color: #f44336;
+}
+
+/* Float cancel and signup buttons and add an equal width */
+.cancelbtn, .signupbtn {
+	float: left;
+	width: 50%;
+}
+
+/* Add padding to container elements */
+.container {
+	padding: 16px;
+}
+
+/* Clear floats */
+.clearfix::after {
+	content: "";
+	clear: both;
+	display: table;
+}
+
+/* Change styles for cancel button and signup button on extra small screens */
+@media screen and (max-width: 300px) {
+	.cancelbtn, .signupbtn {
+		width: 100%;
+	}
+}
+</style>
+</head>
+
+<body>
+	<div class="container" ng-app="myApp" ng-controller="myCtrl"
+		ng-init="getAllClients();getAllBeneficy();getAllTrades();getAllCountries();getAllEmployees();">
+		<h2>Traders Details</h2>
+		<div>
+			<form name="userForm" ng-submit="submitTrade()">
+				<div class="col-md-12">
+					<div class="col-md-4">
+						<select ng-model="trade.type" style="height: 38px; width: 100%;">
+							<option value="payments">Payments</option>
+							<option value="internalTrades">Internal Trades</option>
+
+						</select>
+					</div>
+
+				</div>
+				<div class="col-md-12">
+					<div class="col-md-6">
+						<div class="col-md-12" style="padding: 0px;">
+							Traders Name: <input type="text" ng-model="trade.traderName"></input>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="col-md-12" style="padding: 0px;">
+							Date: <input type="text" id="datepicker" ng-model="trade.date"></input>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-12">
+					<div class="col-md-6">
+						Client: <br /> <select style="width: 84%; height: 38px;"
+							ng-model="trade.clientId">
+							<option ng-repeat="c in clients" value="{{c.clientId}}">{{c.name}}</option>
+
+						</select>
+
+						<button type="button"
+							style="width: 14%; height: 40px; margin-top: -1%;"
+							class="btn btn-success" data-toggle="modal"
+							data-target="#addNewClient">Add</button>
+
+					</div>
+					<div class="col-md-6">
+
+						Payment Details: <br /> <select style="width: 84%; height: 38px;"
+							ng-model="trade.beneficiariesId">
+							<option ng-repeat=" c in benificies" value="{{c.id}}">{{c.name}}</option>
+						</select>
+
+						<button type="button"
+							style="width: 14%; height: 40px; margin-top: -1%;"
+							class="btn btn-success" data-toggle="modal"
+							data-target="#addNewBenefiency">Add</button>
+					</div>
+				</div>
+
+				<div class="col-md-12">
+					<div class="col-md-6">
+						<div class="col-md-12" style="margin-top: 4%; padding: 0px;">
+							Currency Pair: <br /> <select style="height: 38px; width: 100%;"
+								ng-model="trade.currencyPair">
+								<option value="EURUSD">EURUSD</option>
+								<option value="USDJPY">USDJPY</option>
+								<option value="GBPUSD">GBPUSD</option>
+								<option value="USDCHF">USDCHF</option>
+								<option value="USDJPY">USDJPY</option>
+								<option value="USDCAD">USDCAD</option>
+								<option value="AUDUSD">AUDUSD</option>
+								<option value="NZDUSD">NZDUSD</option>
+								<option value="EURJPR">EURJPR</option>
+								<option value="EURGBP">EURGBP</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-md-6">
+						Message : <input type="text" ng-model="trade.messages" />
+					</div>
+				</div>
+
+				<div class="col-md-12">
+					<div class="col-md-6">
+						<div class="col-md-4">Quote Rate:</div>
+						<input type="text" ng-model="trade.quoteRate"
+							ngKeypress="return isNumber(event)" />
+					</div>
+					<div class="col-md-6">
+						<div class="col-md-4">Source Amount :</div>
+						<div class="col-md-8" style="width: 100%">
+							<div style="width: 20%;" class="col-md-3">
+								<select style="height: 40px; width: 100%; margin-top: 16%;"
+									ng-model="trade.currencySymbol">
+									<option value="euro">&#128;</option>
+									<option value="pound">&#163;</option>
+									<option value="dollar">&#36;</option>
+								</select>
+							</div>
+							<div style="width: 80%" class="col-md-9">
+								<input type="text" style="margin-left: -8%;"
+									ng-model="trade.sourceAmount"
+									ngKeypress="return isNumber(event)" />
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-12">
+					<div class="col-md-6" style="margin-top: 1%;">
+						<div class="col-md-4">Source Destination:</div>
+						<select ng-model="trade.sourceDestinationId"
+							style="height: 44px; width: 100%; margin-top: 1%; margin-left: 0%;">
+							<option value="1">Source Destination 1</option>
+							<option value="2">Source Destination 2</option>
+							<option value="3">Source Destination 3</option>
+							<option value="4">Source Destination 4</option>
+						</select>
+					</div>
+					<div class="col-md-6">
+						<div class="col-md-4">Destination Amount:</div>
+						<div class="col-md-8" style="width: 100%;">
+							<div class="col-md-3" style="width: 20%">
+								<select ng-model="trade.destAmtSymbol"
+									style="height: 44px; margin-top: 13%; width: 98%; margin-left: 8%;">
+									<option value="euro">&#128;</option>
+									<option value="pound">&#163;</option>
+									<option value="dollar">&#36;</option>
+								</select>
+							</div>
+							<div class="col-md-9" style="width: 80%">
+								<input type="text" style="width: 100%; margin-left: -7%;"
+									ng-model="trade.destAmount" ngKeypress="return isNumber(event)" />
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-12">
+					<div class="col-md-6">
+						<div class="col-md-6">Upload Invoice</div>
+						<!-- 		<input type="file" id="browse" name="fileupload" /> -->
+						<input type="file" file-model="myFile" class="file"
+							name="textFile" />
+
+					</div>
+					<div class="col-md-6">
+						<div class="col-md-6">Reffereal:</div>
+						<select style="height: 33px;" onchange="checkValue()"
+							id="refSelect" ng-model="trade.isReferal">
+							<option value="yes">yes</option>
+							<option value="no">no</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="col-md-12" id="referealDiv">
+					<div class="col-md-6">
+						<div class="col-md-6">Refereal name :</div>
+						<input type="text" ng-model="trade.refName" />
+					</div>
+					<div class="col-md-6">
+						<div class="col-md-6">Email :</div>
+						<input type="text" ng-model="trade.refEmail" />
+					</div>
+				</div>
+				<div class="col-md-12">
+					<button type="btn btn-success submit"
+						style="width: 16%; float: left; height: 40px; background-color: green;"
+						class="btn btn-lg btn-primary">Save</button>
+
+				</div>
+
+			</form>
+
+
+		</div>
+
+		<!-- Modal -->
+		<div class="modal fade" id="addNewBenefiency" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Add New Benefiency</h4>
+					</div>
+					<div class="modal-body">
+						<form role="form">
+
+							<div class="col-md-12">
+								<div class="col-md-6">
+
+									<div class="col-md-6">Country:</div>
+									<select ng-model="beneficy.country"
+										style="width: 100%; height: 40px;">
+										<option ng-repeat="c in countries" value="{{c.countryName}}">{{c.countryName}}</option>
+									</select>
+								</div>
+								<div class="col-md-6">
+									<div class="col-md-6">Name</div>
+									<input type="text" ng-model="beneficy.name" />
+								</div>
+							</div>
+
+							<div class="col-md-12">
+								<div class="col-md-6">
+									<div class="col-md-6" ng-model="beneficy.address1">Address1:</div>
+									<input type="text" />
+								</div>
+								<div class="col-md-6">
+									<div class="col-md-6">Address2</div>
+									<input type="text" ng-model="beneficy.address2" />
+								</div>
+							</div>
+
+
+							<div class="col-md-12">
+								<div class="col-md-6">
+									<div class="col-md-6">City:</div>
+									<input type="text" ng-model="beneficy.city" />
+								</div>
+								<div class="col-md-6">
+									<div class="col-md-6">State</div>
+									<input type="text" ng-model="beneficy.state" />
+								</div>
+							</div>
+
+
+
+							<div class="col-md-12">
+								<div class="col-md-6">
+									<div class="col-md-6">Zip Code:</div>
+									<input type="text" ng-model="beneficy.zipCode"
+										ngKeypress="return isNumber(event)" />
+								</div>
+								<div class="col-md-6">
+									<div class="col-md-6">Account Type</div>
+									<input type="text" ng-model="beneficy.accountType" />
+								</div>
+							</div>
+
+							<div class="col-md-12">
+								<div class="col-md-6">
+									<div class="col-md-6">Acc Number:</div>
+									<input type="text" ng-model="beneficy.accountNumber" />
+								</div>
+								<div class="col-md-6">
+									<div class="col-md-6">Swift Code</div>
+									<input type="text" ng-model="beneficy.swiftCode" />
+								</div>
+							</div>
+
+							<div class="col-md-12">
+								<div class="col-md-6">
+									<div class="col-md-6">Bank Name</div>
+									<input type="text" ng-model="beneficy.bankName" />
+								</div>
+							</div>
+							<button type="submit"
+								style="width: 40%; height: 40px; margin-top: 6%; margin-left: 6%;"
+								class="btn btn-success " ng-click="saveBeneficy()">Add</button>
+						</form>
+					</div>
+					<div class="modal-footer"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal -->
+		<div class="modal fade" id="addNewClient" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Add New client</h4>
+					</div>
+					<div class="modal-body" style="height: 310px;">
+
+						<div class="col-md-12">
+							<div class="col-md-6">Client Name:</div>
+							<div class="col-md-6">
+								<input type="text" ng-model="client.name" />
+							</div>
+						</div>
+
+						<div class="col-md-12">
+							<div class="col-md-6">WyreAccount Id:</div>
+							<div class="col-md-6">
+								<input type="text" ng-model="client.wyreAccountID" />
+							</div>
+						</div>
+
+						<div class="col-md-12">
+							<div class="col-md-6">Country</div>
+							<div class="col-md-6">
+								<select id="country" ng-model="client.country"
+									style="height: 33px;">
+									<option ng-repeat="c in countries" value="{{c.countryName}}">{{c.countryName}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-md-12">
+							<div class="col-md-6">Client Source</div>
+							<div class="col-md-6">
+								<select id="clientSource" ng-model="client.clientSource"
+									style="height: 33px; margin-top: 2%;">
+									<option value="{{e.id}}" ng-repeat="e in  employees">{{e.employeeName}}</option>
+								</select>
+							</div>
+						</div>
+
+						<button ng-click="saveClient();"
+							style="width: 40%; margin-top: 8%; height: 40px;"
+							class="btn btn-success">Add</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		function checkValue() {
+			console.log($("#refSelect").val());
+			if ($("#refSelect").val() == "yes") {
+				$("#referealDiv").show();
+
+			} else {
+				$("#referealDiv").hide();
+			}
+
+		}
+	</script>
+
+
+
+	<script>
+		var app = angular.module('myApp', []);
+		var myCtrl = app.controller('myCtrl', function($scope, $http) {
+			$scope.client = {};
+
+			$scope.getAllClients = function() {
+				$http({
+					method : 'GET',
+					url : '/clients'
+				}).then(function successCallback(response) {
+					console.log(response);
+					$scope.clients = response.data;
+				}, function errorCallback(response) {
+					console.log(response.statusText);
+				});
+			};
+
+			$scope.getAllBeneficy = function() {
+				$http({
+					method : 'GET',
+					url : '/benefies'
+				}).then(function successCallback(response) {
+					$scope.benificies = response.data;
+				}, function errorCallback(response) {
+					console.log(response.statusText);
+				});
+
+			};
+
+			$scope.getAllTrades = function() {
+				$http({
+					method : 'GET',
+					url : '/listTrades'
+				}).then(function successCallback(response) {
+					$scope.trades = response.data;
+				}, function errorCallback(response) {
+					console.log(response.statusText);
+				});
+			};
+
+			$scope.saveClient = function() {
+				console.log($scope.client);
+				var Indata = {
+					'client' : $scope.client
+				};
+
+				$http.post("/client", $scope.client).then(
+						function(data, status, headers, config) {
+							alert("success");
+							$scope.getAllClients();
+							$scope.client = {};
+						}, function(data, status, headers, config) {
+							alert("error")
+						});
+
+			}
+
+			$scope.beneficy = {};
+
+			$scope.trade = {};
+			$scope.saveTrade = function() {
+				console.log($scope.trade);
+				$http.post("/traders", $scope.trade).then(
+						function(data, status, headers, config) {
+							alert("success")
+							$scope.trade = {};
+							$scope.getAllTrades();
+							
+						}, function(data, status, headers, config) {
+							alert("error")
+						});
+			}
+
+			$scope.saveBeneficy = function() {
+				console.log($scope.beneficy);
+				$http.post("/beneficy", $scope.beneficy).then(
+						function(data, status, headers, config) {
+							alert("success");
+							$scope.getAllBeneficy();
+							$scope.beneficy = {};
+							
+						}, function(data, status, headers, config) {
+							alert("error")
+						});
+
+			}
+
+			$scope.countries;
+			$scope.getAllCountries = function() {
+
+				$http({
+					method : 'GET',
+					url : '/countries'
+				}).then(function successCallback(response) {
+					$scope.countries = response.data;
+				}, function errorCallback(response) {
+					console.log(response.statusText);
+				});
+			}
+
+			$scope.employees;
+			$scope.getAllEmployees = function() {
+
+				$http({
+					method : 'GET',
+					url : '/employees'
+				}).then(function successCallback(response) {
+					$scope.employees = response.data;
+				}, function errorCallback(response) {
+					console.log(response.statusText);
+				});
+			}
+
+			$scope.isNumber = function(evt) {
+				return true;
+			}
+
+			$scope.submitTrade = function() {
+
+				var file = $scope.myFile;
+				/* console.log('file is ' );
+				console.dir(file);*/
+				var uploadUrl = "/saveTradeDataAndFile";
+				var fd = new FormData();
+				fd.append('file', file);
+				fd.append('trade', angular.toJson($scope.trade, true));
+				console.log('Socpe of user' + $scope.trade);
+				$http.post(uploadUrl, fd, {
+					transformRequest : angular.identity,
+					headers : {
+						'Content-Type' : undefined
+					}
+				}).success(function() {
+					console.log('success');
+					alert("success")
+					$scope.trade = {};
+					$scope.getAllTrades();
+					
+				}).error(function() {
+					alert("error")
+					console.log('error');
+				});
+			}
+
+		});
+
+		myCtrl.directive('fileModel', [ '$parse', function($parse) {
+			return {
+				restrict : 'A',
+				link : function(scope, element, attrs) {
+					var model = $parse(attrs.fileModel);
+					var modelSetter = model.assign;
+
+					element.bind('change', function() {
+						scope.$apply(function() {
+							modelSetter(scope, element[0].files[0]);
+						});
+					});
+				}
+			};
+		} ]);
+	</script>
+
+
+</body>
+
+
+</html>

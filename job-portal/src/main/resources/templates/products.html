@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+<title>Trading Platform</title>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<link rel="stylesheet"
+	href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"></link>
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"></link>
+
+<!--/*/ <th:block th:include="fragments/headerinc :: head"></th:block> /*/-->
+</head>
+<body ng-app="myApp" ng-controller="tabCtrl"
+	ng-init="getAllClients();getAllBeneficy();getAllTrades();">
+
+	<div class="container">
+		<ul class="nav nav-tabs">
+			<li class="active"><a data-toggle="tab" href="#home">Order</a></li>
+			<li><a data-toggle="tab" href="#menu1">Payment</a></li>
+			<li><a data-toggle="tab" href="#menu2">Account</a></li>
+		</ul>
+
+		<div class="tab-content">
+			<h3>Trade Management</h3>
+
+			<div id="home" class="tab-pane fade in active">
+				<div class="col-md-12">
+					<h2>Order</h2>
+					<table class="table table-striped">
+						<tr>
+							<th>Date</th>
+							<th>Client</th>
+							<th>Type</th>
+							<th>Pair</th>
+							<th>Quote</th>
+							<th>SourceAmt</th>
+							<th>DestinatonAmt</th>
+							<th>Description</th>
+							<th>Status</th>
+							<th>Payment</th>
+							<th>Action</th>
+						</tr>
+						<tr ng-repeat="product in trades">
+							<td>{{product.dateConverted | date:'medium' }}</td>
+							<td>{{product.clientName}}</td>
+							<td>{{product.type}}</td>
+							<td>{{product.currencyPair}}</td>
+							<td>{{product.quoteRate}}</td>
+							<td><span ng-if="product.currencySymbol == 'euro' ">&#128;</span>
+								<span ng-if="product.currencySymbol == 'dollar' ">&#36;</span> <span
+								ng-if="product.currencySymbol == 'pound' ">&#163;</span>
+								&#36;{{product.sourceAmount}}</td>
+							<td><span ng-if="product.destAmtSymbol == 'euro' ">&#128;</span>
+								<span ng-if="product.destAmtSymbol == 'dollar' ">&#36;</span> <span
+								ng-if="product.destAmtSymbol == 'pound' ">&#163;</span>
+								{{product.destAmount}}</td>
+							<td>{{product.messages}}</td>
+							<td>{{product.status}}</td>
+							<td>{{product.payment}}</td>
+							<td><select>
+									<option value="Initiate Payment">Initiate Payment</option>
+									<option value="Cancel Payment">Cancel Payment</option>
+									<option value="View Client">View Client</option>
+									<option value="Payment Receipt">Payment Receipt</option>
+							</select></td>
+						</tr>
+					</table>
+
+
+				</div>
+
+
+			</div>
+			<div id="menu1" class="tab-pane fade">
+
+				<div class="col-md-12">
+
+					<h2>Payment</h2>
+					<table class="table table-striped">
+						<tr>
+							<th>Date Created</th>
+							<th>Client</th>
+							<th>Beneficiary</th>
+							<th>SourceAmt</th>
+							<th>PaymentAmt</th>
+							<th>Date Initiated</th>
+							<th>Status</th>
+							<th>Action</th>
+						</tr>
+
+						<tr ng-repeat="product in trades">
+							<td>{{product.dateCreated | date:'medium'}}</td>
+							<td>{{product.clientName}}</td>
+							<td>{{product.beneficiaryName}}</td>
+							<td><span ng-if="product.sourceAmount == 'euro' ">&#128;</span>
+
+								<span ng-if="product.sourceAmount == 'dollar' ">&#36;</span> <span
+								ng-if="product.sourceAmount == 'pound' ">&#163;</span>
+								{{product.sourceAmount}}</td>
+							<td>$12340</td>
+							<td>{{product.dateCreated}}</td>
+							<td>{{product.status}}</td>
+							<td><select>
+									<option value="Initiate Payment">Initiate Payment</option>
+									<option value="Cancel Payment">Cancel Payment</option>
+									<option value="View Client">View Client</option>
+									<option value="Payment Receipt">Payment Receipt</option>
+							</select></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div id="menu2" class="tab-pane fade">
+				<div class="col-md-12">
+
+					<h2>Accounts</h2>
+					<table class="table table-striped">
+						<tr>
+							<th>Name</th>
+							<th>Email</th>
+							<th>Member Since</th>
+							<th>Total Transacted</th>
+							<th>Location</th>
+							<th></th>
+						</tr>
+						<tr ng-repeat="c in clients">
+							<td>{{c.name}}</td>
+							<td>abc@gmail.com</td>
+							<td>{{c.createdDate | date:'medium'}}</td>
+							<td>&#8356;150000</td>
+							<td>{{c.country}}</td>
+							<td><select>
+									<option value="Initiate Payment">Initiate Payment</option>
+									<option value="Cancel Payment">Cancel Payment</option>
+									<option value="View Client">View Client</option>
+									<option value="Payment Receipt">Payment Receipt</option>
+
+							</select></td>
+						</tr>
+					</table>
+
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		var app = angular.module('myApp', []);
+		app.controller('tabCtrl', function($scope, $http) {
+			$scope.client = {};
+
+			$scope.getAllClients = function() {
+				$http({
+					method : 'GET',
+					url : '/clients'
+				}).then(function successCallback(response) {
+					console.log(response);
+					$scope.clients = response.data;
+				}, function errorCallback(response) {
+					console.log(response.statusText);
+				});
+			};
+
+			$scope.getAllBeneficy = function() {
+				$http({
+					method : 'GET',
+					url : '/benefies'
+				}).then(function successCallback(response) {
+					$scope.benificies = response.data;
+				}, function errorCallback(response) {
+					console.log(response.statusText);
+				});
+
+			};
+
+			$scope.getAllTrades = function() {
+				$http({
+					method : 'GET',
+					url : '/listTrades'
+				}).then(function successCallback(response) {
+					$scope.trades = response.data;
+				}, function errorCallback(response) {
+					console.log(response.statusText);
+				});
+			};
+
+			$scope.saveClient = function() {
+				console.log($scope.client);
+				var Indata = {
+					'client' : $scope.client
+				};
+
+				$http.post("/client", $scope.client).then(
+						function(data, status, headers, config) {
+							alert("success");
+							$scope.getAllClients();
+							$scope.client = {};
+						}, function(data, status, headers, config) {
+							alert("error")
+						});
+
+			}
+
+			$scope.beneficy = {};
+
+			$scope.trade = {};
+			$scope.saveTrade = function() {
+				console.log($scope.trade);
+				$http.post("/traders", $scope.trade).then(
+						function(data, status, headers, config) {
+							alert("success")
+							$scope.trade = {};
+							$scope.getAllTrades();
+						}, function(data, status, headers, config) {
+							alert("error")
+						});
+			}
+
+			$scope.saveBeneficy = function() {
+				console.log($scope.beneficy);
+				$http.post("/beneficy", $scope.beneficy).then(
+						function(data, status, headers, config) {
+							alert("success");
+							$scope.getAllBeneficy();
+							$scope.beneficy = {};
+						}, function(data, status, headers, config) {
+							alert("error")
+						});
+
+			}
+
+			$scope.isNumber = function(evt) {
+				return true;
+			}
+
+		});
+	</script>
+
+
+</body>
+</html>

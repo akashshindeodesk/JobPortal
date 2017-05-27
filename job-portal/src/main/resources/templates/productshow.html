@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+
+<title>Trading Demo</title>
+
+</head>
+<body>
+	<div class="container">
+
+		<h2>Trade Details</h2>
+		<div>
+			<form class="form-horizontal">
+
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Currency pair:</label>
+					<div class="col-sm-10">
+						<p class="form-control-static" th:text="${product.currencyPair}">Currency
+							pair</p>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Traders name:</label>
+					<div class="col-sm-10">
+						<p class="form-control-static" th:text="${product.traderName}">Traders
+							name:</p>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Date:</label>
+					<div class="col-sm-10">
+						<p class="form-control-static" th:text="${product.date}">Date</p>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Quote Rate:</label>
+					<div class="col-sm-10">
+						<p class="form-control-static" th:text="${product.traderName}">Quote
+							Rate</p>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Source Amount:</label>
+					<div class="col-sm-10">
+						<p class="form-control-static" th:text="${product.sourceAmount}">Source
+							Amount</p>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Dest Amount:</label>
+					<div class="col-sm-10">
+						<p class="form-control-static" th:text="${product.destAmount}">Dest
+							Amount</p>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Beneficiaries Id:</label>
+					<div class="col-sm-10">
+						<p class="form-control-static"
+							th:text="${product.beneficiariesId}">Beneficiaries Id</p>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Messages:</label>
+					<div class="col-sm-10">
+						<p class="form-control-static" th:text="${product.messages}">messages</p>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Description:</label>
+					<div class="col-sm-10">
+						<p class="form-control-static" th:text="${product.traderName}">description</p>
+					</div>
+				</div>
+
+			</form>
+		</div>
+	</div>
+
+</body>
+</html>
